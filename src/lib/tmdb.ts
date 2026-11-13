@@ -1,5 +1,7 @@
 import "server-only";
 
+import { cacheLife } from "next/cache";
+
 import type {
   MovieDetail,
   MovieSummary,
@@ -14,7 +16,6 @@ import type {
 
 const BASE_URL = "https://api.themoviedb.org/3";
 const LANGUAGE = "es-MX";
-const REVALIDATE_SECONDS = 60 * 60; // caché de 1 hora por petición
 
 /** ID del género "Animación" en TMDB. */
 export const ANIMATION_GENRE_ID = 16;
@@ -31,7 +32,14 @@ export class TmdbError extends Error {
 
 type Params = Record<string, string | number | boolean | undefined>;
 
+/**
+ * Cada combinación (path, params) se cachea durante horas con `use cache`
+ * (Cache Components de Next 16), así que no gastamos cuota de TMDB en cada visita.
+ */
 async function tmdbFetch<T>(path: string, params: Params = {}): Promise<T> {
+  "use cache";
+  cacheLife("hours");
+
   const token = process.env.TMDB_ACCESS_TOKEN;
   if (!token) {
     throw new TmdbError("Falta TMDB_ACCESS_TOKEN en las variables de entorno", 500);
@@ -50,7 +58,6 @@ async function tmdbFetch<T>(path: string, params: Params = {}): Promise<T> {
       Authorization: `Bearer ${token}`,
       accept: "application/json",
     },
-    next: { revalidate: REVALIDATE_SECONDS },
   });
 
   if (!response.ok) {
