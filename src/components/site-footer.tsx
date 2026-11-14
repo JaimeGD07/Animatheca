@@ -3,7 +3,7 @@ export function SiteFooter() {
     <footer className="mt-16 border-t border-line">
       <div className="mx-auto max-w-7xl space-y-2 px-4 py-8 text-sm text-muted">
         <p>
-          Animatheca es un proyecto de práctica del bootcamp Kodigo Full Stack Jr.
+          Animatheca tu lugar para repetir más no olvidar.
         </p>
         <p>
           Este producto usa la API de{" "}
