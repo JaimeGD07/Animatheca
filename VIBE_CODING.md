@@ -25,7 +25,9 @@ Registro del flujo de desarrollo guiado por IA de **Animatheca**.
 ### Prompt 3
 
 > Construye el layout, la home y la página /explorar con Server Components, estados de carga y error, y un diseño responsive con identidad propia para una app de películas animadas
+### Promt 4
 
+> “Crea la página de detalle de película con tráiler y películas similares, y un panel de biblioteca personal (estado, favorita, puntuación y notas) conectado a Supabase con sesión anónima.”
 
 ---
 
@@ -37,6 +39,7 @@ Registro del flujo de desarrollo guiado por IA de **Animatheca**.
 | 1 | Scaffold y archivos base | README, .env.example y plantilla | Se eliminó un README duplicado que se coló en un commit |
 | 2 | Capa de datos |Cliente TMDB, 3 Route Handlers, esquema SQL con RLS | La IA propuso sesión anónima de Supabase en lugar de un id local, por seguridad |
 | 3 | La IA propuso new Date() para el selector de año | Falló con Cache Components | se corrigió con una función cacheada |
+| 4 |  |  |  |
 ---
 
 ## 3. Decisiones técnicas
@@ -49,6 +52,7 @@ git commit -m "feat: biblioteca personal con Supabase, sesión anónima y RLS"
 | pnpm como gestor de paquetes | npm | Consistencia con proyectos anteriores |
 | sesión anónima de Supabase | id aleatorio en localStorage | RLS real |
 | los filtros usan un formulario GET sin JavaScript | se mejoran con búsqueda en vivo | será un Client Component con useState y useEffect |
+|  |  |  |
 ---
 
 ## 4. Desafíos encontrados y cómo se resolvieron
