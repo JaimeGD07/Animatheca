@@ -32,18 +32,25 @@ export class TmdbError extends Error {
 
 type Params = Record<string, string | number | boolean | undefined>;
 
+type TmdbResult<T> = { ok: true; data: T } | { ok: false; status: number };
+
 /**
- * Cada combinación (path, params) se cachea durante horas con `use cache`
- * (Cache Components de Next 16), así que no gastamos cuota de TMDB en cada visita.
+ * Pide un recurso a TMDB y lo cachea durante horas con `use cache`
+ * (Cache Components de Next 16), así que no gastamos cuota en cada visita.
+ *
+ * IMPORTANTE: esta función NO lanza errores. En producción, un error lanzado
+ * dentro de `use cache` llega al otro lado como un `Error` genérico sin `name`
+ * ni `status`, y no podríamos distinguir un 404 de un fallo real. Por eso
+ * devuelve un resultado y `tmdbFetch` lanza el `TmdbError` fuera de la caché.
+ * Los fallos se guardan solo unos segundos: un 500 puntual no debe durar horas.
  */
-async function tmdbFetch<T>(path: string, params: Params = {}): Promise<T> {
+async function cachedTmdbFetch<T>(
+  path: string,
+  params: Params,
+  token: string,
+): Promise<TmdbResult<T>> {
   "use cache";
   cacheLife("hours");
-
-  const token = process.env.TMDB_ACCESS_TOKEN;
-  if (!token) {
-    throw new TmdbError("Falta TMDB_ACCESS_TOKEN en las variables de entorno", 500);
-  }
 
   const url = new URL(`${BASE_URL}${path}`);
   url.searchParams.set("language", LANGUAGE);
@@ -53,17 +60,37 @@ async function tmdbFetch<T>(path: string, params: Params = {}): Promise<T> {
     }
   }
 
-  const response = await fetch(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      accept: "application/json",
-    },
-  });
+  let response: Response;
+  try {
+    response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}`, accept: "application/json" },
+    });
+  } catch {
+    cacheLife("seconds");
+    return { ok: false, status: 503 };
+  }
 
   if (!response.ok) {
-    throw new TmdbError(`TMDB respondió con estado ${response.status}`, response.status);
+    cacheLife("seconds");
+    return { ok: false, status: response.status };
   }
-  return (await response.json()) as T;
+  return { ok: true, data: (await response.json()) as T };
+}
+
+async function tmdbFetch<T>(path: string, params: Params = {}): Promise<T> {
+  const token = process.env.TMDB_ACCESS_TOKEN;
+  if (!token) {
+    throw new TmdbError("Falta TMDB_ACCESS_TOKEN en las variables de entorno", 500);
+  }
+
+  const result = await cachedTmdbFetch<T>(path, params, token);
+  if (!result.ok) {
+    // Un fallo del lado de TMDB (5xx) se reporta como 502 para no confundirlo
+    // con nuestros propios errores de configuración (500).
+    const status = result.status >= 500 ? 502 : result.status;
+    throw new TmdbError(`TMDB respondió con estado ${result.status}`, status);
+  }
+  return result.data;
 }
 
 export interface DiscoverOptions {
