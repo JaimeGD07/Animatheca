@@ -47,7 +47,7 @@ function Hero() {
         className="absolute -bottom-20 left-1/3 -z-10 size-72 rounded-full bg-accent/25 blur-3xl"
       />
 
-      <p className="text-sm font-extrabold uppercase tracking-widest text-accent">
+      <p className="text-sm font-extrabold uppercase tracking-widest text-accent-text">
         Cine de animación
       </p>
       <h1 className="mt-3 max-w-2xl font-display text-4xl font-bold leading-tight sm:text-6xl">

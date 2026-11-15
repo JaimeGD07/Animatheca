@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 
 import { LibraryCard } from "@/components/library-card";
 import { LibraryError } from "@/components/library-error";
-import { MovieGridSkeleton } from "@/components/movie-grid";
+import { LibrarySkeleton } from "@/components/library-skeleton";
 import { useLibrary } from "@/hooks/use-library";
 import {
   computeStats,
@@ -46,7 +46,7 @@ export function LibraryView() {
     [entries, filter, sort, query],
   );
 
-  if (state === "loading") return <MovieGridSkeleton count={12} />;
+  if (state === "loading") return <LibrarySkeleton />;
   if (state === "error") return <LibraryError message={error} onRetry={reload} />;
 
   if (entries.length === 0) {
@@ -54,8 +54,8 @@ export function LibraryView() {
       <div className="rounded-3xl border-2 border-dashed border-line px-6 py-16 text-center">
         <p className="font-display text-2xl font-semibold">Tu biblioteca está vacía</p>
         <p className="mx-auto mt-2 max-w-md text-muted">
-          Abre cualquier película y pulsa «Agregar a mi biblioteca» para empezar a
-          armar tu colección.
+          Abre cualquier película y pulsa «Agregar a mi biblioteca» para empezar a armar tu
+          colección.
         </p>
         <Link href="/explorar" className="btn btn-primary mt-6">
           Explorar películas
@@ -144,13 +144,16 @@ export function LibraryView() {
           </button>
         </div>
       ) : (
-        <ul className={GRID_CLASSES}>
-          {visible.map((entry, index) => (
-            <li key={entry.id}>
-              <LibraryCard entry={entry} priority={index < 6} />
-            </li>
-          ))}
-        </ul>
+        <>
+          <h2 className="sr-only">Tus películas</h2>
+          <ul className={GRID_CLASSES}>
+            {visible.map((entry, index) => (
+              <li key={entry.id}>
+                <LibraryCard entry={entry} priority={index < 6} />
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </div>
   );

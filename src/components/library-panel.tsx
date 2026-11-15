@@ -259,7 +259,7 @@ export function LibraryPanel({ movie }: { movie: MovieRef }) {
         </div>
       )}
 
-      <p role="status" className="mt-4 min-h-5 text-sm font-bold text-accent">
+      <p role="status" className="mt-4 min-h-5 text-sm font-bold text-accent-text">
         {notice}
       </p>
       {error && (

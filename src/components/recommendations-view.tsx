@@ -54,7 +54,7 @@ export function RecommendationsView() {
     return () => controller.abort();
   }, [seedKey, excludeKey, requestKey]);
 
-  if (state === "loading") return <MovieGridSkeleton count={12} />;
+  if (state === "loading") return <MovieGridSkeleton count={6} />;
   if (state === "error") return <LibraryError message={error} onRetry={reload} />;
 
   if (entries.length === 0) {
@@ -98,7 +98,7 @@ export function RecommendationsView() {
         .
       </p>
 
-      {!current && <MovieGridSkeleton count={12} />}
+      {!current && <MovieGridSkeleton count={6} />}
 
       {current && "error" in current && (
         <LibraryError
@@ -117,7 +117,10 @@ export function RecommendationsView() {
       )}
 
       {current && "movies" in current && current.movies.length > 0 && (
-        <MovieGrid movies={current.movies} priorityCount={6} />
+        <>
+          <h2 className="sr-only">Recomendaciones</h2>
+          <MovieGrid movies={current.movies} priorityCount={6} />
+        </>
       )}
     </div>
   );

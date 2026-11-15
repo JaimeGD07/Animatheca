@@ -23,7 +23,8 @@ export function Pagination({ page, totalPages, hrefFor }: PaginationProps) {
           ← Anterior
         </Link>
       ) : (
-        <span className="btn btn-ghost pointer-events-none opacity-40" aria-hidden="true">
+        // Se conserva el espacio para que la paginación no salte, pero oculto.
+        <span className="btn btn-ghost invisible" aria-hidden="true">
           ← Anterior
         </span>
       )}
@@ -37,7 +38,7 @@ export function Pagination({ page, totalPages, hrefFor }: PaginationProps) {
           Siguiente →
         </Link>
       ) : (
-        <span className="btn btn-ghost pointer-events-none opacity-40" aria-hidden="true">
+        <span className="btn btn-ghost invisible" aria-hidden="true">
           Siguiente →
         </span>
       )}

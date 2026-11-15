@@ -10,6 +10,8 @@
   --primary: #ff6b35;
   --primary-ink: #1e1b4b;
   --accent: #17a398;
+  /* Versión del acento para TEXTO pequeño: contraste 5:1 sobre crema y blanco. */
+  --accent-text: #0b7a70;
   --star: #ffc93c;
 }
 
@@ -23,6 +25,7 @@
     --primary: #ff8a5b;
     --primary-ink: #14122b;
     --accent: #3ccfc2;
+    --accent-text: #3ccfc2;
     --star: #ffd45e;
   }
 }
@@ -36,6 +39,7 @@
   --color-primary: var(--primary);
   --color-primary-ink: var(--primary-ink);
   --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
   --color-star: var(--star);
   --font-display: var(--font-fredoka), ui-rounded, system-ui, sans-serif;
   --font-sans: var(--font-nunito), system-ui, sans-serif;
