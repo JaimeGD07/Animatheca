@@ -2,10 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
 
+import { ExploreFilters } from "@/components/explore-filters";
 import { MovieGrid, MovieGridSkeleton } from "@/components/movie-grid";
 import { Pagination } from "@/components/pagination";
 import { parseIntInRange } from "@/lib/api";
 import { getCurrentYear } from "@/lib/dates";
+import { buildExploreHref } from "@/lib/explore-url";
 import { getPopular, getTopRated, searchAnimated } from "@/lib/tmdb";
 import type { MovieCategory } from "@/types/tmdb";
 
@@ -22,24 +24,6 @@ const MAX_PAGES = 500; // límite de TMDB
 
 function first(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
-}
-
-interface Filters {
-  q: string;
-  categoria: MovieCategory;
-  anio?: number;
-  pagina?: number;
-}
-
-/** Arma la URL de /explorar con solo los filtros que no son los de por defecto. */
-function buildHref({ q, categoria, anio, pagina }: Filters): string {
-  const params = new URLSearchParams();
-  if (q) params.set("q", q);
-  else if (categoria !== "popular") params.set("categoria", categoria);
-  if (anio) params.set("anio", String(anio));
-  if (pagina && pagina > 1) params.set("pagina", String(pagina));
-  const query = params.toString();
-  return query ? `/explorar?${query}` : "/explorar";
 }
 
 export default function ExplorePage({
@@ -88,54 +72,17 @@ async function ExploreContent({
   const totalPages = Math.min(data.total_pages, MAX_PAGES);
   const years = Array.from({ length: currentYear - 1949 }, (_, i) => currentYear - i);
   const hrefFor = (target: number) =>
-    buildHref({ q, categoria, anio, pagina: target });
+    buildExploreHref({ q, categoria, anio, pagina: target });
 
   return (
     <>
-      <form
-        action="/explorar"
-        role="search"
-        className="mb-6 flex flex-wrap items-end gap-3"
-      >
-        {categoria !== "popular" && (
-          <input type="hidden" name="categoria" value={categoria} />
-        )}
-        <div className="min-w-56 flex-1">
-          <label htmlFor="q" className="mb-1 block text-sm font-bold">
-            Título
-          </label>
-          <input
-            id="q"
-            name="q"
-            type="search"
-            defaultValue={q}
-            placeholder="Ej. Coco, Shrek, Moana…"
-            className="input"
-          />
-        </div>
-        <div>
-          <label htmlFor="anio" className="mb-1 block text-sm font-bold">
-            Año
-          </label>
-          <select id="anio" name="anio" defaultValue={anio ? String(anio) : ""} className="input">
-            <option value="">Todos</option>
-            {years.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button type="submit" className="btn btn-primary">
-          Buscar
-        </button>
-      </form>
+      <ExploreFilters q={q} anio={anio} categoria={categoria} years={years} />
 
       {q ? (
         <p className="mb-6 text-muted">
           Resultados para <strong className="text-ink">«{q}»</strong> ·{" "}
           <Link
-            href={buildHref({ q: "", categoria, anio })}
+            href={buildExploreHref({ q: "", categoria, anio })}
             className="font-bold text-ink underline underline-offset-2"
           >
             Limpiar búsqueda
@@ -146,7 +93,7 @@ async function ExploreContent({
           {CATEGORIES.map(({ value, label }) => (
             <Link
               key={value}
-              href={buildHref({ q: "", categoria: value, anio })}
+              href={buildExploreHref({ q: "", categoria: value, anio })}
               aria-current={categoria === value ? "page" : undefined}
               className={`rounded-full border-2 border-ink px-4 py-1.5 text-sm font-extrabold transition-colors ${
                 categoria === value ? "bg-ink text-background" : "hover:bg-ink/10"
@@ -173,6 +120,7 @@ async function ExploreContent({
         </div>
       ) : (
         <>
+          <h2 className="sr-only">Resultados</h2>
           <MovieGrid movies={data.results} priorityCount={6} />
           <Pagination page={pagina} totalPages={totalPages} hrefFor={hrefFor} />
         </>
